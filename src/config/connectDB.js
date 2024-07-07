@@ -1,13 +1,16 @@
 import { Sequelize } from 'sequelize';
 import mysql2 from 'mysql2';
-const sequelize = new Sequelize('data', 'root', null , {
-    host: 'localhost',
+const sequelize = new Sequelize('bulbsbsafacvv5oilkfu', 'uzglsm7dg4xnna5y', 'mQDkBV5hR3iwtjJKJRCv' , {
+    host: 'bulbsbsafacvv5oilkfu-mysql.services.clever-cloud.com',
     dialect: 'mysql',
     dialectModule: mysql2,
     define: {
     timestamps: false
   }
-    
+  // DB_HOST = bulbsbsafacvv5oilkfu-mysql.services.clever-cloud.com
+  // DB_NAME = bulbsbsafacvv5oilkfu
+  // DB_USER = uzglsm7dg4xnna5y
+  // DB_PASS = mQDkBV5hR3iwtjJKJRCv
   });
   async function check() {
     try {

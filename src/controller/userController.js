@@ -37,47 +37,58 @@ export async function getAll(req, res) {
 
 export async function addUser(req, res) {
     try {
-      const { username, phone, password, avatar, id_role } = req.body;
-      const filedata = req.file;
-  
-      const roleId = parseInt(id_role);
-      if (isNaN(roleId)) {
-        if (filedata) {
-          // Clean up uploaded file if role ID is invalid
-          cloudinary.uploader.destroy(filedata.filename);
+        const { username, phone, password, avatar, id_role } = req.body;
+        const filedata = req.file;
+
+        const roleId = parseInt(id_role);
+        if (isNaN(roleId)) {
+            if (filedata) {
+                // Clean up uploaded file if role ID is invalid
+                cloudinary.uploader.destroy(filedata.filename);
+            }
+            return res.status(400).json({ success: false, message: 'Invalid role ID' });
         }
-        return res.status(400).json({ success: false, message: 'Invalid role ID' });
-      }
-  
-      const role = await Role.findByPk(roleId);
-      if (!role) {
-        if (filedata) {
-          // Clean up uploaded file if role ID is not found
-          cloudinary.uploader.destroy(filedata.filename);
+
+        const role = await Role.findByPk(roleId);
+        if (!role) {
+            if (filedata) {
+                // Clean up uploaded file if role ID is not found
+                cloudinary.uploader.destroy(filedata.filename);
+            }
+            return res.status(400).json({ success: false, message: 'Role not found' });
         }
-        return res.status(400).json({ success: false, message: 'Role not found' });
-      }
-  
-      const hashedPassword = hashPassword(password);
-  
-      // Insert user data into the database
-      const user = await Users.create({
-        id_user: v4(),
-        username,
-        phone,
-        password: hashedPassword,
-        avatar: filedata ? filedata.path : null,
-        id_role: roleId,
-        // Avoid specifying id_user here to let Sequelize manage it
-      });
-  
-      return res.status(200).json({ success: true, data: user });
-  
+
+        // Check if phone number already exists
+        const existingUser = await Users.findOne({ where: { phone } });
+        if (existingUser) {
+            if (filedata) {
+                // Clean up uploaded file if phone number is not unique
+                cloudinary.uploader.destroy(filedata.filename);
+            }
+            return res.status(400).json({ success: false, message: 'Phone number already exists' });
+        }
+
+        const hashedPassword = hashPassword(password);
+
+        // Insert user data into the database
+        const user = await Users.create({
+            id_user: v4(),
+            username,
+            phone,
+            password: hashedPassword,
+            avatar: filedata ? filedata.path : null,
+            id_role: roleId,
+            // Avoid specifying id_user here to let Sequelize manage it
+        });
+
+        return res.status(200).json({ success: true, data: user });
+
     } catch (error) {
-      console.error('Error adding user:', error);
-      return res.status(500).json({ success: false, message: error.message });
+        console.error('Error adding user:', error);
+        return res.status(500).json({ success: false, message: error.message });
     }
-  }
+}
+
 
 export async function deleteUser(req, res) {
     try {
@@ -98,36 +109,44 @@ export async function deleteUser(req, res) {
 }
 
 export async function updateUser(req, res) {
-    try{
-        const {username,phone, password, id_role } = req.body;
+    try {
+        const { username, phone, password, id_role } = req.body;
         const { id_user } = req.params;
         const parsedIdUser = parseInt(id_user);
-        if(isNaN(parsedIdUser)){
+
+        if (isNaN(parsedIdUser)) {
             return res.status(400).json({ success: false, message: 'Invalid user ID' });
         }
 
         const user = await Users.findByPk(parsedIdUser);
-        if(!user){
+        if (!user) {
             return res.status(404).json({ success: false, message: 'User not found' });
         }
+
+        // Check if the phone number already exists for another user
+        const existingUserWithPhone = await Users.findOne({ where: { phone } });
+        if (existingUserWithPhone && existingUserWithPhone.id_user !== parsedIdUser) {
+            return res.status(409).json({ success: false, message: 'Phone number already exists' });
+        }
+
         const hashedPassword = hashPassword(password);
         const updateData = {
             username,
             phone,
             password: hashedPassword,
             id_role
-            
-        }
-    
-        if(req.file){
+        };
+
+        if (req.file) {
             const result = await cloudinary.uploader.upload(req.file.path);
             updateData.avatar = result.secure_url;
         }
 
         await user.update(updateData);
         return res.status(200).json({ success: true, message: 'User updated successfully' });
-    }catch(error){
-        throw new Error(error);
+    } catch (error) {
+        console.error('Error updating user:', error.message);
+        return res.status(500).json({ success: false, message: 'An error occurred while updating the user' });
     }
 }
 export async function getAllRole(req, res) {
