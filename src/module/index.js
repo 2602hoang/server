@@ -9,17 +9,18 @@ const Users = sequelize.define('user', {
     primaryKey: true,
     autoIncrement: true,
   },
-  phone:{
-    type: DataTypes.STRING,
-    allowNull: false,
-  },
+  
   username: {
     type: DataTypes.STRING,
-    allowNull: false,
+   
+  },
+  phone:{
+    type: DataTypes.STRING,
+ 
   },
   password: {
     type: DataTypes.STRING,
-    allowNull: false,
+    
   },
   remember_token: {
     type: DataTypes.STRING,
@@ -27,8 +28,12 @@ const Users = sequelize.define('user', {
   avatar: {
     type: DataTypes.STRING,
   },
-  role: {
+  id_role: {
     type: DataTypes.INTEGER,
+    references: {
+      model: 'role',
+      key: 'id_role',
+    },
   },
   created_at: {
     type: DataTypes.DATE,
@@ -40,7 +45,29 @@ const Users = sequelize.define('user', {
   },
 }, {
   tableName: 'user',
-  timestamps: false,
+
+});
+
+const Role = sequelize.define('role', {
+  id_role: {
+    type: DataTypes.INTEGER,
+    primaryKey: true,
+    autoIncrement: true,
+  },
+  name: {
+    type: DataTypes.STRING,
+  },
+  created_at: {
+    type: DataTypes.DATE,
+    defaultValue: DataTypes.NOW,
+  },
+  updated_at: {
+    type: DataTypes.DATE,
+    defaultValue: DataTypes.NOW,
+  },
+}, {
+  tableName: 'role',
+  
 });
 
 // Defining the OrderDetail model
@@ -148,36 +175,36 @@ const Product = sequelize.define('product', {
   },
   name: {
     type: DataTypes.STRING,
-    allowNull: false,
+
   },
   description: {
     type: DataTypes.STRING,
   },
   price: {
     type: DataTypes.FLOAT,
-    allowNull: false,
+  
   },
   images: {
     type: DataTypes.BOOLEAN,
   },
   qty: {
     type: DataTypes.INTEGER,
-    allowNull: false,
+ 
   },
   discoust: {
     type: DataTypes.FLOAT,
   },
   created_at: {
     type: DataTypes.DATE,
-    defaultValue: DataTypes.NOW,
+  
   },
   updated_at: {
     type: DataTypes.DATE,
-    defaultValue: DataTypes.NOW,
+   
   },
 }, {
   tableName: 'product',
-  timestamps: false,
+  
 });
 
 // Defining the Category model
@@ -189,19 +216,19 @@ const Category = sequelize.define('category', {
   },
   name: {
     type: DataTypes.STRING,
-    allowNull: false,
+    
   },
   created_at: {
     type: DataTypes.DATE,
-    defaultValue: DataTypes.NOW,
+  
   },
   updated_at: {
     type: DataTypes.DATE,
-    defaultValue: DataTypes.NOW,
+   
   },
 }, {
   tableName: 'category',
-  timestamps: false,
+
 });
 
 // Defining the Brand model
@@ -213,7 +240,7 @@ const Brand = sequelize.define('brand', {
   },
   name: {
     type: DataTypes.STRING,
-    allowNull: false,
+  
   },
   created_at: {
     type: DataTypes.DATE,
@@ -225,10 +252,11 @@ const Brand = sequelize.define('brand', {
   },
 }, {
   tableName: 'brand',
-  timestamps: false,
 });
 
 
+Users.belongsTo(Role, { foreignKey: 'id_role' });
+Role.hasMany(Users, { foreignKey: 'id_role' });
 // User hasMany Orders
 Users.hasMany(Order, { foreignKey: 'id_user' });
 Order.belongsTo(Users, { foreignKey: 'id_user' });
@@ -249,5 +277,5 @@ Product.belongsTo(Category, { foreignKey: 'id_category' });
 Brand.hasMany(Product, { foreignKey: 'id_brand' });
 Product.belongsTo(Brand, { foreignKey: 'id_brand' });
 
-export { Users, OrderDetail, Order, Product, Category, Brand };
+export { Users, OrderDetail, Order, Product, Category, Brand ,Role};
 export default sequelize;

@@ -1,6 +1,26 @@
 
-post
-localhost:8080/api/v1/auth/register
-localhost:8080/api/v1/auth/login
+// post
+// localhost:8080/api/v1/auth/register
+// localhost:8080/api/v1/auth/login
 
-/
+// localhost:8080/api/v1/product/add
+// {
+//     "id_brand": 1,
+//     "id_category": 2,
+//     "name": "Product Name",
+//     "description": "Product Description",
+//     "price": 100.00,
+//     "images": "base64encodedimage",
+//     "qty": 10,
+//     "discount": 5
+// }
+
+// **********************************************************************
+// get
+// localhost:8080/api/v1/product/getall
+// localhost:8080/api/v1/product/getone/:id_product
+// localhost:8080/api/v1/product/getall/category/:id_category
+// localhost:8080/api/v1/product/getall/brand/:id_brand
+// localhost:8080/api/v1/category/getall
+// localhost:8080/api/v1/brand/getall
+// localhost:8080/api/v1/user/getone/:id_user
