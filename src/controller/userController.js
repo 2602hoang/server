@@ -72,24 +72,39 @@ export async function addUser(req, res) {
         const hashedPassword = hashPassword(password);
 
         // Insert user data into the database
-        const user = await Users.create({
-            id_user: v4(),
+        const newUser = {
+            id_user: v4(), // Generate a UUID for id_user
             username,
             phone,
             password: hashedPassword,
             avatar: filedata ? filedata.path : null,
             id_role: roleId,
-            // Avoid specifying id_user here to let Sequelize manage it
-        });
+        };
+
+        const user = await Users.create(newUser);
+
+        // Upload avatar to Cloudinary if filedata is available
+        if (filedata) {
+            const cloudinaryResponse = await cloudinary.uploader.upload(filedata.path);
+            // Assuming cloudinaryResponse contains necessary information about the uploaded file
+            // Update user's avatar field with Cloudinary URL or other relevant information
+            user.avatar = cloudinaryResponse.secure_url; // Example: Storing Cloudinary URL
+            await user.save(); // Save the updated user data with Cloudinary URL
+        }
 
         return res.status(200).json({ success: true, data: user });
 
     } catch (error) {
         console.error('Error adding user:', error);
+        
+        // Clean up uploaded file if an error occurs during insertion
+        if (filedata) {
+            cloudinary.uploader.destroy(filedata.filename);
+        }
+        
         return res.status(500).json({ success: false, message: error.message });
     }
 }
-
 
 export async function deleteUser(req, res) {
     try {
@@ -138,8 +153,17 @@ export async function updateUser(req, res) {
             id_role
         };
 
+        // Check if there's a new avatar file to upload
         if (req.file) {
+            // Upload new avatar to Cloudinary
             const result = await cloudinary.uploader.upload(req.file.path);
+
+            // Delete old avatar from Cloudinary if it exists
+            if (user.avatar) {
+                const publicId = user.avatar.public_id; // Assuming you store public_id in the avatar field
+                await cloudinary.uploader.destroy(publicId);
+            }
+
             updateData.avatar = result.secure_url;
         }
 
