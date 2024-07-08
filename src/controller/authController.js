@@ -55,6 +55,8 @@ export async function loginUser(req, res) {
                 return {
                     error: 0,
                     mes: 'Đăng nhập thành công',
+                    id_role : user.id_role,
+                    id_user : user.id_user,
                     access_token: token
                 };
 

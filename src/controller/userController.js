@@ -22,6 +22,7 @@ export async function getOne(req, res) {
         throw new Error(error);
     }
 }
+
 export async function getAll(req, res) {
     try {
         const users = await Users.findAll({
