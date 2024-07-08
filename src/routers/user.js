@@ -8,7 +8,7 @@ const router = express.Router();
 router.get('/getone/:id_user', getOne)
 
 router.use(verifyToken)
-// router.use(isAdmin)
+router.use(isAdmin)
 router.post('/add',upload.single("avatar"), addUser)
 router.put('/delete/:id_user',deleteUser);
 router.put('/update/:id_user',upload.single("avatar"), updateUser);
