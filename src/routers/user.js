@@ -9,12 +9,13 @@ router.get('/getone/:id_user', getOne)
 
 router.use(verifyToken)
 router.use(isAdmin)
+router.get('/getall/role', getAllRole)
+router.get('/getall', getAll)
 router.post('/add',upload.single("avatar"), addUser)
 router.put('/delete/:id_user',deleteUser);
 router.put('/update/:id_user',upload.single("avatar"), updateUser);
 
-router.get('/getall/role', getAllRole)
-router.get('/getall', getAll)
+
 
 
 
