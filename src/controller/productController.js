@@ -86,7 +86,7 @@ export async function addProduct(req, res) {
     try {
         
         // console.log('File data:', filedata);
-        let { id_brand, id_category, name, description, price, images , qty, discoust } = req.body;
+        let {   name, description, id_category, id_brand,price, qty, discoust, images  } = req.body;
         const filedata = req.file;
         console.log('Request body:', req.body);
 
@@ -128,14 +128,14 @@ export async function addProduct(req, res) {
 
 
         const product = await Product.create({
-            id_brand,
-            id_category,
             name,
             description,
+            id_category,
+            id_brand,
             price,
-            images: filedata?.path,
             qty,
-            discoust
+            discoust,
+            images: filedata?.path
         });
 
         return res.status(200).json({ success: true, data: product });

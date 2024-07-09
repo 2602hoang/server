@@ -1,9 +1,8 @@
-
 import { v4 } from 'uuid';
 import { cloudinary } from '../middlewear/cloudianary.config.js';
 import { Role, Users } from '../module/index.js';
 import bcrypt from 'bcryptjs';
-import { Op } from 'sequelize';
+import { Op, UUIDV4 } from 'sequelize';
 const hashPassword = (password) => {
 
     return bcrypt.hashSync(password, bcrypt.genSaltSync(10));
@@ -38,14 +37,13 @@ export async function getAll(req, res) {
 
 export async function addUser(req, res) {
     try {
-        const { username, phone, password, avatar, id_role } = req.body;
-        const filedata = req.file;
+        const { username, phone, password, id_role } = req.body;
+        const filedata = req.file; // Assuming this is handled by middleware (e.g., multer)
 
         const roleId = parseInt(id_role);
         if (isNaN(roleId)) {
             if (filedata) {
-                // Clean up uploaded file if role ID is invalid
-                cloudinary.uploader.destroy(filedata.filename);
+                cloudinary.uploader.destroy(filedata.filename); // Clean up uploaded file if role ID is invalid
             }
             return res.status(400).json({ success: false, message: 'Invalid role ID' });
         }
@@ -53,42 +51,41 @@ export async function addUser(req, res) {
         const role = await Role.findByPk(roleId);
         if (!role) {
             if (filedata) {
-                // Clean up uploaded file if role ID is not found
-                cloudinary.uploader.destroy(filedata.filename);
+                cloudinary.uploader.destroy(filedata.filename); // Clean up uploaded file if role ID is not found
             }
             return res.status(400).json({ success: false, message: 'Role not found' });
         }
 
-        // Check if phone number already exists
-        const existingUser = await Users.findOne({ where: { phone } });
+        // Check if the phone number already exists
+        const whereCondition = {};
+        if (phone) {
+            whereCondition.phone = phone;
+        }
+
+        const existingUser = await Users.findOne({ where: whereCondition });
         if (existingUser) {
             if (filedata) {
-                // Clean up uploaded file if phone number is not unique
-                cloudinary.uploader.destroy(filedata.filename);
+                cloudinary.uploader.destroy(filedata.filename); // Clean up uploaded file if phone number is not unique
             }
             return res.status(400).json({ success: false, message: 'Phone number already exists' });
         }
 
         const hashedPassword = hashPassword(password);
 
-        // Insert user data into the database
         const newUser = {
-            id_user: v4(), // Generate a UUID for id_user
+            // id_user: v4(), // Generate a UUID for id_user
             username,
             phone,
             password: hashedPassword,
-            avatar: filedata ? filedata.path : null,
+            avatar: filedata ? filedata.path : null, // Store file path or Cloudinary public ID
             id_role: roleId,
         };
 
         const user = await Users.create(newUser);
 
-        // Upload avatar to Cloudinary if filedata is available
         if (filedata) {
             const cloudinaryResponse = await cloudinary.uploader.upload(filedata.path);
-            // Assuming cloudinaryResponse contains necessary information about the uploaded file
-            // Update user's avatar field with Cloudinary URL or other relevant information
-            user.avatar = cloudinaryResponse.secure_url; // Example: Storing Cloudinary URL
+            user.avatar = cloudinaryResponse.secure_url; // Update user's avatar field with Cloudinary URL
             await user.save(); // Save the updated user data with Cloudinary URL
         }
 
@@ -96,12 +93,11 @@ export async function addUser(req, res) {
 
     } catch (error) {
         console.error('Error adding user:', error);
-        
-        // Clean up uploaded file if an error occurs during insertion
+
         if (filedata) {
-            cloudinary.uploader.destroy(filedata.filename);
+            cloudinary.uploader.destroy(filedata.filename); // Clean up uploaded file if an error occurs during insertion
         }
-        
+
         return res.status(500).json({ success: false, message: error.message });
     }
 }
