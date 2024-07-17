@@ -309,8 +309,10 @@ export async function thongkeOrderbyUser(req, res) {
         if (end_date <= start_date) {
             return res.status(400).json({ error: 'Ngày kết thúc phải lớn hơn ngày bắt đầu.' });
         }
+
         console.log('start_date:', start_date);
         console.log('end_date:', end_date);
+
         // Query to find top 3 users by order count and their total spent amount
         const topUsers = await Order.findAll({
             where: {
@@ -318,10 +320,9 @@ export async function thongkeOrderbyUser(req, res) {
                 date_order: {
                     [Op.between]: [start_date, end_date]
                 }
-                
             },
             attributes: [
-                'id_user','date_order',
+                'id_user',
                 [sequelize.fn('COUNT', sequelize.col('order.id_order')), 'orderCount'],
                 [sequelize.fn('SUM', sequelize.col('order.total_price')), 'totalSpent']
             ],
@@ -333,18 +334,13 @@ export async function thongkeOrderbyUser(req, res) {
                         status: 0 // Assuming status 0 means active users
                     }
                 },
-                {
-                    model: OrderDetail,
-                    attributes: [], // To exclude order details from the result set
-                }
+                
             ],
-            
-            
-            group: ['id_user'],
+            group: ['order.id_user', 'user.id_user', 'user.username', 'user.phone'],
             order: [[sequelize.literal('orderCount'), 'DESC']],
             limit: 3
         });
-        // {console.log(date_order)}
+
         res.status(200).json(topUsers);
     } catch (error) {
         res.status(500).json({ error: error.message });
