@@ -14,6 +14,10 @@ const Users = sequelize.define('user', {
     type: DataTypes.STRING,
    
   },
+  status:{
+    type: DataTypes.BOOLEAN,
+    defaultValue: false,
+  },
   phone:{
     type: DataTypes.STRING,
  
@@ -93,11 +97,11 @@ const OrderDetail = sequelize.define('order_detail', {
   },
   qty: {
     type: DataTypes.INTEGER,
-    allowNull: false,
+   
   },
   total_amount: {
     type: DataTypes.FLOAT,
-    allowNull: false,
+    
   },
   created_at: {
     type: DataTypes.DATE,
@@ -126,18 +130,39 @@ const Order = sequelize.define('order', {
       key: 'id_user',
     },
   },
+  id_pay: {
+    type: DataTypes.INTEGER,
+    references: {
+      model: 'pay',
+      key: 'id_pay',
+    },
+  },
+  id_adress: {
+    type: DataTypes.INTEGER,
+    references: {
+      model: 'adress',
+      key: 'id_adress',
+    },
+  },
   notes: {
+    type: DataTypes.STRING,
+  },
+  note_pays:{
     type: DataTypes.STRING,
   },
   total_price: {
     type: DataTypes.FLOAT,
-    allowNull: false,
+    
   },
   status: {
     type: DataTypes.TINYINT,
   },
+  finished:{
+    type: DataTypes.TINYINT,
+  },
   date_order: {
     type: DataTypes.DATE,
+    allowNull: false,
   },
   created_at: {
     type: DataTypes.DATE,
@@ -177,6 +202,10 @@ const Product = sequelize.define('product', {
     type: DataTypes.STRING,
 
   },
+  status:{
+    type: DataTypes.BOOLEAN,
+    defaultValue: false,
+  },
   description: {
     type: DataTypes.STRING,
   },
@@ -187,7 +216,7 @@ const Product = sequelize.define('product', {
   images: {
     type: DataTypes.BOOLEAN,
   },
-  qty: {
+  stock: {
     type: DataTypes.INTEGER,
  
   },
@@ -253,6 +282,37 @@ const Brand = sequelize.define('brand', {
 }, {
   tableName: 'brand',
 });
+const Adress = sequelize.define('adress', {
+  id_adress: {
+    type: DataTypes.INTEGER,
+    primaryKey: true,
+    autoIncrement: true,
+  },
+  name: {
+    type: DataTypes.STRING,
+  
+  },
+  tableName: 'adress',
+
+});
+
+const Pay = sequelize.define('pay', {
+  id_pay: {
+    type: DataTypes.INTEGER,
+    primaryKey: true,
+    autoIncrement: true,
+  },
+  name_pay: {
+    type: DataTypes.STRING,
+  },
+  
+  updated_at: {
+    type: DataTypes.DATE,
+    defaultValue: DataTypes.NOW,
+  },
+}, {
+  tableName: 'pay',
+});
 
 
 Users.belongsTo(Role, { foreignKey: 'id_role' });
@@ -277,5 +337,11 @@ Product.belongsTo(Category, { foreignKey: 'id_category' });
 Brand.hasMany(Product, { foreignKey: 'id_brand' });
 Product.belongsTo(Brand, { foreignKey: 'id_brand' });
 
-export { Users, OrderDetail, Order, Product, Category, Brand ,Role};
+Pay.hasMany(Order, { foreignKey: 'id_pay' });
+Order.belongsTo(Pay, { foreignKey: 'id_pay' });
+
+Adress.hasMany(Order, { foreignKey: 'id_adress' });
+Order.belongsTo(Adress, { foreignKey: 'id_adress' });
+
+export { Users, OrderDetail, Order, Product, Category, Brand ,Role ,Pay,Adress};
 export default sequelize;

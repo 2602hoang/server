@@ -17,6 +17,14 @@ import mysql2 from 'mysql2';
     define: {
     timestamps: false
   }
+  // const sequelize = new Sequelize('data', 'root', null , {
+  //   host: 'localhost',
+  //   // port: 21062,
+  //   dialect: 'mysql',
+  //   dialectModule: mysql2,
+  //   define: {
+  //   timestamps: false
+  // }
   // DB_HOST = bulbsbsafacvv5oilkfu-mysql.services.clever-cloud.com
   // DB_NAME = bulbsbsafacvv5oilkfu
   // DB_USER = uzglsm7dg4xnna5y

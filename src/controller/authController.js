@@ -57,7 +57,8 @@ export async function loginUser(req, res) {
                     mes: 'Đăng nhập thành công',
                     id_role : user.id_role,
                     id_user : user.id_user,
-                    access_token: token
+                    status : user.status,
+                    access_token: user.status === 0 ? token : null
                 };
 
             } catch (error) {
@@ -89,16 +90,18 @@ export async function registerUser(req, res) {
                 mes: 'Vui lòng nhập đầy đủ thông tin'
             });
         }
+
     const registerUser1 = ({username, phone, password  }) => new Promise(async (resolve, reject) => {
         try {
             const [user, created] = await Users.findOrCreate({
                 where: { phone },
                 defaults: {
+                    id_user: v4(),
                     username,
                     phone,
                     password: hashPassword(password),
                     id_role : 125,
-                    id_user: v4()
+                    
                 }
             });
 

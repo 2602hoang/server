@@ -1,10 +1,45 @@
 import { cloudinary } from "../middlewear/cloudianary.config.js";
-import { Brand, Category, Product } from "../module/index.js";
+import { Brand, Category, OrderDetail, Product } from "../module/index.js";
+import sequelize from "../config/connectDB.js";
 
+export async function getALlProductsOnSale(req, res) {
+    try {
+        const { rows: products } = await Product.findAndCountAll({
+            where: {
+                status: 0
+            },
+            include: [
+                { model: Category, attributes: ['id_category', 'name'] }, // Include the Category model
+                { model: Brand, attributes: ['id_brand', 'name'] } // Include the Brand model with only 'name' attribute
+            ]
+        });
+        return res.status(200).json(products); // Send only the products array
+    } catch (error) {
+        return res.status(500).json({ error: error.message });
+    }
+}
+export async function getALlProductsDontSale(req, res) {
+    try {
+        const { rows: products } = await Product.findAndCountAll({
+            where: {
+                status: 1
+            },
+            include: [
+                { model: Category, attributes: ['id_category', 'name'] }, // Include the Category model
+                { model: Brand, attributes: ['id_brand', 'name'] } // Include the Brand model with only 'name' attribute
+            ]
+        });
+        return res.status(200).json(products); // Send only the products array
+    } catch (error) {
+        return res.status(500).json({ error: error.message });
+    }
+}
 
 export async function getALlProducts(req, res) {
     try {
         const { rows: products } = await Product.findAndCountAll({
+            order: [['status', 'ASC']],
+
             include: [
                 { model: Category, attributes: ['id_category', 'name'] }, // Include the Category model
                 { model: Brand, attributes: ['id_brand', 'name'] } // Include the Brand model with only 'name' attribute
@@ -86,7 +121,7 @@ export async function addProduct(req, res) {
     try {
         
         // console.log('File data:', filedata);
-        let {   name, description, id_category, id_brand,price, qty, discoust, images  } = req.body;
+        let {   name, description, id_category, id_brand,price, stock, discoust, images  } = req.body;
         const filedata = req.file;
         console.log('Request body:', req.body);
 
@@ -133,7 +168,7 @@ export async function addProduct(req, res) {
             id_category,
             id_brand,
             price,
-            qty,
+            stock,
             discoust,
             images: filedata?.path
         });
@@ -146,7 +181,7 @@ export async function addProduct(req, res) {
 }
 export async function updateProduct(req, res) {
     try {
-      const { id_brand, id_category, name, description, price, qty, discoust } = req.body;
+      const { id_brand, id_category, name, description, price, stock, discoust } = req.body;
       const { id_product } = req.params; // Extract id_product from req.params
       const parsedId = parseInt(id_product, 10); // Parse id_product as an integer
   
@@ -167,7 +202,7 @@ export async function updateProduct(req, res) {
         name,
         description,
         price,
-        qty,
+        stock,
         discoust
       };
   
@@ -189,22 +224,70 @@ export async function updateProduct(req, res) {
     }
   }
 export async function deleteProduct(req, res) {
+    const transaction = await sequelize.transaction();
     try {
-        const { id_product } = req.params; // Ensure id_product is extracted from req.params
-        const parsedId = parseInt(id_product, 10); // Parse id_product as an integer
+        const { id_product } = req.params;
+        const parsedId = parseInt(id_product, 10);
 
         if (isNaN(parsedId)) {
             return res.status(400).json({ success: false, message: 'Invalid product ID' });
         }
 
-        const product = await Product.findByPk(parsedId);
+        const product = await Product.findByPk(parsedId, { transaction });
         if (!product) {
+            await transaction.rollback();
             return res.status(404).json({ success: false, message: 'Product not found' });
         }
-        
-        await product.destroy();
+
+        const orderDetailExists = await OrderDetail.findOne({ where: { id_product: parsedId }, transaction });
+
+        if (orderDetailExists) {
+            product.status = 1;
+            await product.save({ transaction });
+        } else {
+            product.status = 1;
+            await product.save({ transaction });
+        }
+
+        await transaction.commit();
         return res.status(200).json({ success: true });
     } catch (error) {
+        await transaction.rollback();
+        console.error('Error deleting product:', error);
+        return res.status(500).json({ success: false, message: error.message });
+    }
+}
+
+export async function reStockProduct(req, res) {
+    const transaction = await sequelize.transaction();
+    try {
+        const { id_product } = req.params;
+        const parsedId = parseInt(id_product, 10);
+
+        if (isNaN(parsedId)) {
+            return res.status(400).json({ success: false, message: 'Invalid product ID' });
+        }
+
+        const product = await Product.findByPk(parsedId, { transaction });
+        if (!product) {
+            await transaction.rollback();
+            return res.status(404).json({ success: false, message: 'Product not found' });
+        }
+
+        const orderDetailExists = await OrderDetail.findOne({ where: { id_product: parsedId }, transaction });
+
+        if (orderDetailExists) {
+            product.status = 0;
+            await product.save({ transaction });
+        }
+        else {
+            product.status = 0;
+            await product.save({ transaction });
+        }
+        await transaction.commit();
+        return res.status(200).json({ success: true });
+    } catch (error) {
+        await transaction.rollback();
         console.error('Error deleting product:', error);
         return res.status(500).json({ success: false, message: error.message });
     }

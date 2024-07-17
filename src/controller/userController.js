@@ -26,7 +26,7 @@ export async function getAll(req, res) {
     try {
         const users = await Users.findAll({
             order: [
-                ['id_role', 'ASC'] // Sắp xếp tăng dần theo id_role
+                ['id_role', 'ASC'],['status', 'ASC'] // Sắp xếp tăng dần theo id_role
             ]
         });
         return res.status(200).json(users);
@@ -73,7 +73,7 @@ export async function addUser(req, res) {
         const hashedPassword = hashPassword(password);
 
         const newUser = {
-            // id_user: v4(), // Generate a UUID for id_user
+            id_user: v4(), // Generate a UUID for id_user
             username,
             phone,
             password: hashedPassword,
@@ -113,10 +113,14 @@ export async function deleteUser(req, res) {
         if (!user) {
             return res.status(404).json({ success: false, message: 'User not found' });
         }
-        await user.destroy();
-        return res.status(200).json({ success: true, message: 'User deleted successfully' });
+        
+        // Update the user's status to 1 instead of deleting
+        await user.update({ status: 1 });
+
+        return res.status(200).json({ success: true, message: 'User status updated to 1 successfully' });
     } catch (error) {
-        throw new Error(error);
+        console.error('Error updating user status:', error);
+        return res.status(500).json({ success: false, message: 'Internal server error' });
     }
 }
 
