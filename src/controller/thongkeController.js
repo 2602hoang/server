@@ -147,24 +147,21 @@ export async function thongkeThanhCong(req, res) {
                 id_pay: 2,
                 finished: 1
             },
+            attributes: [
+                'id_order',
+                
+            ],
             include: [
                 {
                     model: OrderDetail,
                     attributes: [
-                        'id_product',
-                        [fn('SUM', col('qty')), 'total_quantity'],
-                        [fn('SUM', col('total_amount')), 'total_price']
-                    ],
-                    include: [
-                        {
-                            model: Product,
-                            attributes: []
-                        }
-                    ],
-                    group: ['order_details.id_product'],
-                    raw: true
+                        [fn('SUM', col('order_details.qty')), 'total_quantity'],
+                        [fn('SUM', col('order_details.total_amount')), 'total_price']
+
+                    ]
                 }
             ],
+            group: ['order.id_order'],
             raw: true
         });
         // Total count of successful orders, retrieved from COUNT(id_order) alias 'count1'
@@ -196,25 +193,23 @@ export async function thongkeHuy(req, res) {
                 id_pay: 5,
                 finished: 1
             },
+            attributes: [
+                'id_order',
+                
+            ],
             include: [
                 {
                     model: OrderDetail,
                     attributes: [
-                        'id_product',
-                        [fn('SUM', col('qty')), 'total_quantity'],
-                        [fn('SUM', col('total_amount')), 'total_price']
+                        [fn('SUM', col('order_details.qty')), 'total_quantity'],
+                        [fn('SUM', col('order_details.total_amount')), 'total_price']
                     ],
-                    include: [
-                        {
-                            model: Product,
-                            attributes: []
-                        }
-                    ],
-                    group: ['order_details.id_product'],
-                    raw: true
+                    
                 }
             ],
+            group: ['order.id_order'],
             raw: true
+            
         });
         // Total count of successful orders, retrieved from COUNT(id_order) alias 'count1'
         const totalQuantity = result.reduce((acc, row) => acc + parseInt(row['order_details.total_quantity'] || 0), 0); // Tổng số lượng sản phẩm đã bán
@@ -249,20 +244,15 @@ export async function thongkeThatbai(req, res) {
                 {
                     model: OrderDetail,
                     attributes: [
-                        'id_product',
+                        // 'id_product',
                         [fn('SUM', col('qty')), 'total_quantity'],
                         [fn('SUM', col('total_amount')), 'total_price']
                     ],
-                    include: [
-                        {
-                            model: Product,
-                            attributes: []
-                        }
-                    ],
-                    group: ['order_details.id_product'],
-                    raw: true
+                    
+                   
                 }
             ],
+            group: ['order.id_order'],
             raw: true
         });
         // Total count of successful orders, retrieved from COUNT(id_order) alias 'count1'
@@ -325,7 +315,6 @@ export async function thongkeOrderbyUser(req, res) {
         const topUsers = await Order.findAll({
             where: {
                 finished: 1, // Completed orders
-               
                 date_order: {
                     [Op.between]: [start_date, end_date]
                 }
@@ -333,8 +322,8 @@ export async function thongkeOrderbyUser(req, res) {
             },
             attributes: [
                 'id_user','date_order',
-                [sequelize.fn('COUNT', sequelize.col('Order.id_order')), 'orderCount'],
-                [sequelize.fn('SUM', sequelize.col('Order.total_price')), 'totalSpent']
+                [sequelize.fn('COUNT', sequelize.col('order.id_order')), 'orderCount'],
+                [sequelize.fn('SUM', sequelize.col('order.total_price')), 'totalSpent']
             ],
             include: [
                 {
