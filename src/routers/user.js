@@ -1,5 +1,5 @@
 import express from "express";
-import { addUser, deleteUser, getAll, getAllRole, getOne, updateUser } from "../controller/userController.js";
+import { addUser, deleteUser, deleteUser1, getAll, getAllRole, getOne, updateUser } from "../controller/userController.js";
 import verifyToken from "../middlewear/verify_token.js";
 import { upload } from "../middlewear/cloudianary.config.js";
 import { isAdmin } from "../middlewear/verify_role.js";
@@ -13,6 +13,7 @@ router.get('/getall/role', getAllRole)
 router.get('/getall', getAll)
 router.post('/add',upload.single("avatar"), addUser)
 router.put('/delete/:id_user',deleteUser);
+router.put('/delete1/:id_user',deleteUser1);
 router.put('/update/:id_user',upload.single("avatar"), updateUser);
 
 

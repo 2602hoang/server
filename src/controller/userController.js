@@ -123,6 +123,27 @@ export async function deleteUser(req, res) {
         return res.status(500).json({ success: false, message: 'Internal server error' });
     }
 }
+export async function deleteUser1(req, res) {
+    try {
+        const { id_user } = req.params;
+        const parsedIdUser = parseInt(id_user);
+        if (isNaN(parsedIdUser)) {
+            return res.status(400).json({ success: false, message: 'Invalid user ID' });
+        }
+        const user = await Users.findOne({ where: { id_user: parsedIdUser } });
+        if (!user) {
+            return res.status(404).json({ success: false, message: 'User not found' });
+        }
+        
+        // Update the user's status to 1 instead of deleting
+        await user.update({ status: 0 });
+
+        return res.status(200).json({ success: true, message: 'User status updated to 1 successfully' });
+    } catch (error) {
+        console.error('Error updating user status:', error);
+        return res.status(500).json({ success: false, message: 'Internal server error' });
+    }
+}
 
 export async function updateUser(req, res) {
     try {
