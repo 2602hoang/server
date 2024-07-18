@@ -6,12 +6,12 @@ import { isAdmin } from "../middlewear/verify_role.js";
 // import isAdmin from "../middlewear/verify_role.js";
 const router = express.Router();
 router.get('/getone/:id_user', getOne)
-
+router.post('/add',upload.single("avatar"), addUser)
 router.use(verifyToken)
 router.use(isAdmin)
 router.get('/getall/role', getAllRole)
 router.get('/getall', getAll)
-router.post('/add',upload.single("avatar"), addUser)
+
 router.put('/delete/:id_user',deleteUser);
 router.put('/delete1/:id_user',deleteUser1);
 router.put('/update/:id_user',upload.single("avatar"), updateUser);

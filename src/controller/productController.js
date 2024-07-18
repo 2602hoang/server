@@ -121,6 +121,7 @@ export async function addProduct(req, res) {
     try {
         
         // console.log('File data:', filedata);
+
         let {   name, description, id_category, id_brand,price, stock, discoust, images  } = req.body;
         const filedata = req.file;
         console.log('Request body:', req.body);
@@ -246,7 +247,7 @@ export async function deleteProduct(req, res) {
             await product.save({ transaction });
         } else {
             product.status = 1;
-            await product.save({ transaction });
+            await product.destroy({ transaction });
         }
 
         await transaction.commit();

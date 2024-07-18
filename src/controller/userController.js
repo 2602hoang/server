@@ -73,12 +73,12 @@ export async function addUser(req, res) {
         const hashedPassword = hashPassword(password);
 
         const newUser = {
-            id_user: v4(), // Generate a UUID for id_user
             username,
             phone,
             password: hashedPassword,
             avatar: filedata ? filedata.path : null, // Store file path or Cloudinary public ID
             id_role: roleId,
+            status: 0
         };
 
         const user = await Users.create(newUser);

@@ -1,6 +1,5 @@
 
 import bcrypt from 'bcryptjs';
-import { v4 } from 'uuid';
 import jwt from 'jsonwebtoken';
 import { Users } from '../module/index.js';
 
@@ -96,7 +95,7 @@ export async function registerUser(req, res) {
             const [user, created] = await Users.findOrCreate({
                 where: { phone },
                 defaults: {
-                    id_user: v4(),
+                    
                     username,
                     phone,
                     password: hashPassword(password),
