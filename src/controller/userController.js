@@ -1,9 +1,13 @@
-import { v4 } from 'uuid';
+
 import { cloudinary } from '../middlewear/cloudianary.config.js';
 import { Role, Users } from '../module/index.js';
 import bcrypt from 'bcryptjs';
-import { Op, UUIDV4 } from 'sequelize';
-const hashPassword = (password) => {
+import { Op,  } from 'sequelize';
+const hashPassword = async (password) => {
+
+    return bcrypt.hashSync(password, bcrypt.genSaltSync(10));
+}
+const hashPassword1 = (password) => {
 
     return bcrypt.hashSync(password, bcrypt.genSaltSync(10));
 }
@@ -43,7 +47,7 @@ export async function addUser(req, res) {
         const roleId = parseInt(id_role);
         if (isNaN(roleId)) {
             if (filedata) {
-                cloudinary.uploader.destroy(filedata.filename); // Clean up uploaded file if role ID is invalid
+                await cloudinary.uploader.destroy(filedata.filename); // Clean up uploaded file if role ID is invalid
             }
             return res.status(400).json({ success: false, message: 'Invalid role ID' });
         }
@@ -51,26 +55,23 @@ export async function addUser(req, res) {
         const role = await Role.findByPk(roleId);
         if (!role) {
             if (filedata) {
-                cloudinary.uploader.destroy(filedata.filename); // Clean up uploaded file if role ID is not found
+                await cloudinary.uploader.destroy(filedata.filename); // Clean up uploaded file if role ID is not found
             }
             return res.status(400).json({ success: false, message: 'Role not found' });
         }
 
         // Check if the phone number already exists
-        const whereCondition = {};
-        if (phone) {
-            whereCondition.phone = phone;
-        }
-
+        const whereCondition = phone ? { phone } : {};
         const existingUser = await Users.findOne({ where: whereCondition });
+
         if (existingUser) {
             if (filedata) {
-                cloudinary.uploader.destroy(filedata.filename); // Clean up uploaded file if phone number is not unique
+                await cloudinary.uploader.destroy(filedata.filename); // Clean up uploaded file if phone number is not unique
             }
             return res.status(400).json({ success: false, message: 'Phone number already exists' });
         }
 
-        const hashedPassword = hashPassword(password);
+        const hashedPassword = hashPassword1(password);
 
         const newUser = {
             username,
@@ -94,8 +95,8 @@ export async function addUser(req, res) {
     } catch (error) {
         console.error('Error adding user:', error);
 
-        if (filedata) {
-            cloudinary.uploader.destroy(filedata.filename); // Clean up uploaded file if an error occurs during insertion
+        if (req.file) {
+            await cloudinary.uploader.destroy(req.file.filename); // Clean up uploaded file if an error occurs during insertion
         }
 
         return res.status(500).json({ success: false, message: error.message });
@@ -166,13 +167,20 @@ export async function updateUser(req, res) {
             return res.status(409).json({ success: false, message: 'Phone number already exists' });
         }
 
-        const hashedPassword = hashPassword(password);
+        let hashedPassword;
+        if (password) {
+            hashedPassword = await hashPassword(password); // Hash the new password
+        } else {
+            hashedPassword = user.password; // Keep the existing password
+        }
+
         const updateData = {
             username,
             phone,
             password: hashedPassword,
             id_role
         };
+
 
         // Check if there's a new avatar file to upload
         if (req.file) {
