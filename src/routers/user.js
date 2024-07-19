@@ -5,6 +5,7 @@ import { upload } from "../middlewear/cloudianary.config.js";
 import { isAdmin } from "../middlewear/verify_role.js";
 // import isAdmin from "../middlewear/verify_role.js";
 const router = express.Router();
+router.use(verifyToken)
 router.get('/getone/:id_user', getOne)
 router.post('/add',upload.single("avatar"), addUser)
 router.use(verifyToken)

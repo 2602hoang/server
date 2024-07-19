@@ -3,8 +3,15 @@ import { addNoteOrder, createOrder, finishedOrderHuy, finishedOrderThanhCong, fi
 import verifyToken from "../middlewear/verify_token.js";
 const router = express.Router();
 router.post("/add", createOrder);
+router.put("/pay/:id_order",updatepayOrderBypayIdandStatus);
+router.put("/update/xacnhan/:id_order",updateOrderbyIdpay);
+router.put('/update/huy/:id_order', updateOrderbyIdpayhuy);
+router.put("/add/note/:id_order",addNoteOrder);
+router.put('/finished2/:id_order',finishedOrderThanhCong);
+router.put('/finished5/:id_order',finishedOrderHuy);
+router.put('/finished3/:id_order',finishedOrderThatBai);
 
-
+router.use(verifyToken)
 router.get('/getall/user/:id_user',getAllOrdersbyIduser);
 router.get("/status/0/:id_user",getOrderByStatus);
 
@@ -20,13 +27,7 @@ router.get("/getone/status1/:id_user&:id_order",getOneOrderPay);
 router.get("/getall", getAllOrders);
 router.get('/getall/byidpay/:id_pay',getAllOrdersbyIdpay);
 
-router.put("/pay/:id_order",updatepayOrderBypayIdandStatus);
-router.put("/update/xacnhan/:id_order",updateOrderbyIdpay);
-router.put('/update/huy/:id_order', updateOrderbyIdpayhuy);
-router.put("/add/note/:id_order",addNoteOrder);
-router.put('/finished2/:id_order',finishedOrderThanhCong);
-router.put('/finished5/:id_order',finishedOrderHuy);
-router.put('/finished3/:id_order',finishedOrderThatBai);
+
 
 
 export default router

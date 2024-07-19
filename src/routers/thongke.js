@@ -4,6 +4,7 @@ import {  thongkeHuy, thongkeOrderbyUser, thongkeProductbyStock, thongkeProductn
 const router = express.Router();
 
 //thống kê product tồn kho nhỏ hơn 30
+
 router.get("/product/stock", thongkeProductbyStock);
 
 router.get("/product/sales", thongkeProductSales);
