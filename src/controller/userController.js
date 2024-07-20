@@ -188,12 +188,12 @@ export async function updateUser(req, res) {
             const result = await cloudinary.uploader.upload(req.file.path);
 
             // Delete old avatar from Cloudinary if it exists
-            if (user.avatar) {
-                const publicId = user.avatar.public_id; // Assuming you store public_id in the avatar field
-                await cloudinary.uploader.destroy(publicId);
+            if (user.avatar_public_id) {
+                await cloudinary.uploader.destroy(user.avatar_public_id);
             }
 
             updateData.avatar = result.secure_url;
+            updateData.avatar_public_id = result.public_id;
         }
 
         await user.update(updateData);
