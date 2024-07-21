@@ -31,7 +31,7 @@ export async function createOrder(req, res) {
 
                 }
                 // console.log(stock);
-                itemtotalprice = product.price * qty;
+                itemtotalprice = (product.price * qty) - (product.price * qty * product.discoust / 100);
                 await product.update({ stock: product.stock - qty }, { transaction });
             }
 
