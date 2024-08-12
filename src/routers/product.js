@@ -7,9 +7,10 @@ const router = express.Router();
 
 
 
-router.get("/getall",getALlProductsOnSale );
+
 
 router.use(verifyToken)
+router.get("/getall",getALlProductsOnSale );
 router.get("/getone/:id_product",getOneProduct);
 router.get("/getall/category/:id_category",getProductByCategoryId);
 router.get("/getall/brand/:id_brand",getProductByBrandId);
