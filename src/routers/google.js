@@ -83,9 +83,26 @@ const getzidi = async (req, res) => {
     res.status(405).json({ message: 'Method not allowed' });
   }
 };
+const getapi = async (req, res) => {
+  if (req.method === 'GET') {
+    try {
+      const targetUrl = 'https://script.google.com/macros/s/AKfycbz9ZnDO5RkQ7ep0jTF7RryOq6wa82WnU4w4n6fF7yP-WqqqqmkfWjAmwldgoqsTaFap/exec';
+      const response = await axios.get(targetUrl);
+      const data = response.data;
+      res.status(200).json(data);
+    } catch (error) {
+      console.error('Error fetching data:', error.message || error);
+      res.status(500).json({ message: 'Error fetching data' });
+    }
+  } else {
+    res.setHeader('Allow', ['GET']);
+    res.status(405).json({ message: 'Method not allowed' });
+  }
+}
 // Routes
 router.post('/send', send);
 router.post('/zidi', zidi);
 router.get('/zidi/get', getzidi);
+router.get('/api/get', getapi);
 
 export default router;
