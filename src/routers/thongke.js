@@ -8,6 +8,7 @@ const router = express.Router();
 router.get("/product/stock", thongkeProductbyStock);
 
 router.get("/product/sales", thongkeProductSales);
+
 router.get("/product/nosales", thongkeProductnoSales);
 
 
