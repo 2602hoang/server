@@ -39,7 +39,6 @@ export async function getALlProducts(req, res) {
     try {
         const { rows: products } = await Product.findAndCountAll({
             order: [['status', 'ASC']],
-
             include: [
                 { model: Category, attributes: ['id_category', 'name'] }, // Include the Category model
                 { model: Brand, attributes: ['id_brand', 'name'] } // Include the Brand model with only 'name' attribute
