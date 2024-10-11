@@ -44,7 +44,7 @@ router.get("/getall/status1/idpay25", getOrderFinished);
 
 // sau khi xac nhan thanh toan
 router.get("/getone/status1/:id_user&:id_order", getOneOrderPay);
-// router.use(isAdmin);
+router.use(isAdmin);
 router.get("/getall", getAllOrders);
 router.get("/getall/byidpay/:id_pay", getAllOrdersbyIdpay);
 
