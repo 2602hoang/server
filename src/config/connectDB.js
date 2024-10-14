@@ -23,6 +23,5 @@ async function check() {
     throw error; // Re-throw the error after logging it
   }
 }
-
 export { check };
 export default sequelize;
