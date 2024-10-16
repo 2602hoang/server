@@ -9,7 +9,7 @@ import mysql2 from 'mysql2';
 //     timestamps: false
 //   }
 
-  const sequelize = new Sequelize('data', 'avnadmin', 'AVNS_ABeZwmOVjP8oaPaCDxB' , {
+  const sequelize = new Sequelize('data', 'avnadmin', 'AVNS_2jYKgBWgypVw5jQ92Mv' , {
     host: 'mysql-7048c9d-vuhuyhoanglol-2001.d.aivencloud.com',
     port: 21062,
     dialect: 'mysql',
