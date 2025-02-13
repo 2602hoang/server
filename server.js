@@ -1,25 +1,27 @@
-import express from 'express';
-import cors from 'cors';
-import dotenv from 'dotenv';
-import { check } from './src/config/connectDB.js';
+import express from "express";
+import cors from "cors";
+import dotenv from "dotenv";
+import { check } from "./src/config/connectDB.js";
 
-import initRouter from './src/routers/index.js';
+import initRouter from "./src/routers/index.js";
 dotenv.config();
-
 
 const app = express();
 
-app.use(cors({
+app.use(
+  cors({
     credentials: true,
-    origin: '*',
-    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+    origin: "*",
+    methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
     preflightContinue: false,
-    optionsSuccessStatus: 204
-  }));
+    optionsSuccessStatus: 204,
+    allowedHeaders: ["Content-Type", "Authorization"],
+  })
+);
 
-app.get('/',(req,res)=>{
-    res.send('server is running');
-})
+app.get("/", (req, res) => {
+  res.send("server is running");
+});
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 initRouter(app);
@@ -29,10 +31,10 @@ check()
     const hostname = process.env.HOST;
     const port = process.env.PORT;
     app.listen(port, hostname, () => {
-        console.log(`Server running at http://${hostname}:${port}/`);
-      });
+      console.log(`Server running at http://${hostname}:${port}/`);
+    });
   })
-  .catch(error => {
-    console.error('Error connecting to database:', error);
+  .catch((error) => {
+    console.error("Error connecting to database:", error);
     process.exit(1); // Exit the process if database connection fails
   });

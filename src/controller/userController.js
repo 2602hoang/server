@@ -73,7 +73,7 @@ export async function addUser(req, res) {
         await cloudinary.uploader.destroy(filedata.filename); // Clean up uploaded file if phone number is not unique
       }
       return res
-        .status(400)
+        .status(409)
         .json({ success: false, message: "Phone number already exists" });
     }
 

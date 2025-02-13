@@ -21,7 +21,7 @@ router.get("/getall", getALlProductsOnSale);
 router.get("/getone/:id_product", getOneProduct);
 router.get("/getall/category/:id_category", getProductByCategoryId);
 router.get("/getall/brand/:id_brand", getProductByBrandId);
-router.use(isAdmin);
+// router.use(isAdmin);
 router.get("/getall/all", getALlProducts);
 router.get("/getall/dontsale", getALlProductsDontSale);
 router.post("/add", upload.single("images"), addProduct);
